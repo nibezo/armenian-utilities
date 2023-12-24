@@ -1,5 +1,5 @@
 import './App.css';
-import React, {useState } from 'react';
+import React, {useState, useEffect } from 'react';
 import { Switch } from 'antd';
 
 function App() {
@@ -16,6 +16,10 @@ function App() {
   function handleClickOfWater() {
     setWater(water ? false : true);
   }
+
+  useEffect(() => {
+    console.log(electricity, gas, water)
+  })
   return (
     <div className="App">
       <h1>Armenian utilities control panel</h1>
