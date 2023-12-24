@@ -18,7 +18,16 @@ function App() {
   }
 
   useEffect(() => {
-    console.log(electricity, gas, water)
+    if (electricity && gas && water) {
+      gas = true;
+      handleClickOfGas();
+    } else if (electricity && !gas === !water) {
+      water = true;
+      handleClickOfWater();
+    } else if (electricity && !gas && !water) {
+      electricity = false;
+      handleClickOfElectricity();
+    }
   })
   return (
     <div className="App">
