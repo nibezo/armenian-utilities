@@ -1,14 +1,11 @@
 import { useState } from "react";
-import classes from "./App.module.css";
-import Utilities from "./components/Utilities/Utilities.jsx";
-import RoommatesInput from "./components/RoommatesInput.jsx";
+import styles from "./styles/styles.module.scss";
+import Header from "./components/Header";
+
 function App() {
   return (
     <>
-      <div className={classes.inputdata}>
-        <Utilities />
-        <RoommatesInput />
-      </div>
+      <Header />
     </>
   );
 }
