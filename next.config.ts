@@ -3,68 +3,60 @@ const withPWA = require("next-pwa")({
   register: true,
   skipWaiting: true,
   disable: false,
+  buildExcludes: [/middleware-manifest\.json$/],
   runtimeCaching: [
-    // Cache all HTML pages (including dynamic routes)
+    // 1. Cache main HTML pages (document)
     {
-      urlPattern: /^https?.*\.html$/,
+      urlPattern: ({ request }: { request: Request }) =>
+        request.destination === "document",
       handler: "CacheFirst",
       options: {
         cacheName: "html-cache",
-        expiration: { maxEntries: 20, maxAgeSeconds: 24 * 60 * 60 },
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 24 * 60 * 60, // 1 day
+        },
       },
     },
 
-    // Cache all routes/pages (with or without trailing slash)
+    // 2. Cache static resources like JS, CSS
     {
-      urlPattern: /^https?:\/\/.+\/?$/,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "page-cache",
-        expiration: { maxEntries: 50, maxAgeSeconds: 24 * 60 * 60 },
-      },
-    },
-
-    // JS and CSS - StaleWhileRevalidate for fast loading and update in background
-    {
-      urlPattern: /^https?.*\.(js|css)$/,
+      urlPattern: /^https?.*\.(?:js|css)$/,
       handler: "StaleWhileRevalidate",
       options: {
         cacheName: "static-resources",
-        expiration: { maxEntries: 50, maxAgeSeconds: 30 * 24 * 60 * 60 },
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
       },
     },
 
-    // Data files (JSON, TXT, XML) - CacheFirst for offline use
+    // 3. Cache data files like JSON, TXT, XML
     {
-      urlPattern: /^https?.*\.(json|txt|xml)$/,
-      handler: "CacheFirst",
+      urlPattern: /^https?.*\.(?:json|txt|xml)$/,
+      handler: "NetworkFirst",
       options: {
-        cacheName: "data-cache",
-        expiration: { maxEntries: 20, maxAgeSeconds: 24 * 60 * 60 },
+        cacheName: "data",
+        expiration: {
+          maxEntries: 20,
+        },
       },
     },
 
-    // Images
+    // 4. Cache images
     {
-      urlPattern: /^https?.*\.(png|jpg|jpeg|svg|gif|webp)$/,
-      handler: "CacheFirst",
+      urlPattern: /^https?.*\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
+      handler: "StaleWhileRevalidate",
       options: {
         cacheName: "image-cache",
-        expiration: { maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 },
-      },
-    },
-
-    // Fonts
-    {
-      urlPattern: /^https?.*\.(woff|woff2|ttf|otf)$/,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "font-cache",
-        expiration: { maxEntries: 30, maxAgeSeconds: 30 * 24 * 60 * 60 },
+        expiration: {
+          maxEntries: 60,
+          maxAgeSeconds: 60 * 24 * 60 * 60, // 60 days
+        },
       },
     },
   ],
-  buildExcludes: [/middleware-manifest.json$/],
 });
 
 module.exports = withPWA({
