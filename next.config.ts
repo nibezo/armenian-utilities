@@ -5,13 +5,14 @@ const withPWA = require("next-pwa")({
   disable: false,
   runtimeCaching: [
     {
-      urlPattern: /^https?.*\.(png|jpg|jpeg|svg|gif|webp|ico)/,
+      urlPattern: /^\/$/,
       handler: "CacheFirst",
       options: {
-        cacheName: "images",
-        expiration: { maxEntries: 50, maxAgeSeconds: 30 * 24 * 60 * 60 },
+        cacheName: "html-cache",
+        expiration: { maxEntries: 10, maxAgeSeconds: 24 * 60 * 60 },
       },
     },
+
     {
       urlPattern: /^https?.*\.(js|css)$/,
       handler: "StaleWhileRevalidate",
@@ -29,13 +30,18 @@ const withPWA = require("next-pwa")({
       },
     },
     {
-      urlPattern: /^https?.*\/$/,
-      handler: "NetworkFirst",
+      urlPattern: /^https?:\/\/.+\/$/, // Кешируем главную страницу и любые URL с слешем на конце
+      handler: "CacheFirst", // CacheFirst для оффлайна
       options: {
         cacheName: "html-cache",
+        expiration: {
+          maxEntries: 10,
+          maxAgeSeconds: 24 * 60 * 60, // 1 день
+        },
       },
     },
   ],
+  buildExcludes: [/middleware-manifest.json$/],
 });
 
 module.exports = withPWA({
